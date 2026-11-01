@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Briefcraft</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a two-pane workbench, brief form on the left, generated prompt pinned on the right; stacks on phones */
+:root {
+  --paper: #f3f5f9;
+  --sheet: #ffffff;
+  --ink: #18213a;
+  --muted: #5b6684;
+  --line: #d5dbe8;
+  --accent: #2b4fd8;
+  --accent-ink: #ffffff;
+  --code-bg: #121a30;
+  --code-fg: #dfe5f5;
+  --tag: #8fb0ff;
+  --ok: #1f7a4d;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d1222; --sheet: #151c32; --ink: #e6eaf6; --muted: #98a2c0; --line: #2a3454;
+    --accent: #7d9bff; --accent-ink: #0d1222; --code-bg: #0a0f1d; --code-fg: #dfe5f5; --tag: #8fb0ff; --ok: #5fd39a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0d1222; --sheet: #151c32; --ink: #e6eaf6; --muted: #98a2c0; --line: #2a3454;
+  --accent: #7d9bff; --accent-ink: #0d1222; --code-bg: #0a0f1d; --code-fg: #dfe5f5; --tag: #8fb0ff; --ok: #5fd39a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 48px;
+}
+.wrap { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2rem, 5vw, 2.8rem); letter-spacing: -0.02em; margin: 0; line-height: 1; }
+h1 span { color: var(--accent); }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 60ch; text-wrap: pretty; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+form { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+fieldset { margin: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--sheet); padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+legend { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; color: var(--accent); padding: 0 6px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+label { font-weight: 600; font-size: 13.5px; }
+label code { font-family: var(--mono); font-weight: 400; font-size: 11.5px; color: var(--muted); margin-left: 6px; }
+.hint { font-size: 12.5px; color: var(--muted); }
+input, textarea {
+  font: inherit; font-size: 14.5px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 7px; padding: 9px 11px; width: 100%;
+}
+textarea { resize: vertical; min-height: 74px; }
+input:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.role { font-size: 13.5px; color: var(--muted); background: var(--paper); border: 1px dashed var(--line); border-radius: 7px; padding: 10px 12px; margin: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+button { font: inherit; font-weight: 600; border-radius: 8px; padding: 10px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:hover { filter: brightness(1.06); }
+.out { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+@media (max-width: 900px) { .out { position: static; } }
+.out-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.out-head h2 { font-family: var(--display); font-weight: 500; font-size: 1.25rem; margin: 0; }
+.meta { font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+pre {
+  margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 10px; padding: 18px;
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+  max-height: calc(100vh - 140px); overflow: auto; min-height: 240px;
+}
+pre .t { color: var(--tag); }
+.status { font-size: 13px; color: var(--ok); min-height: 1.2em; }
+.example { font-size: 12px; font-family: var(--mono); color: var(--muted); }
+.head-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+@media (max-width: 560px) { .head-right { align-items: flex-start; } }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--sheet); }
+.seg button { border: 0; background: transparent; color: var(--muted); padding: 7px 16px; font-size: 13.5px; border-radius: 6px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Brief<span>craft</span></h1>
+      <p class="lede">Fill in the brief, press Generate, and copy a structured, XML-tagged prompt ready for Claude. Use Design for Claude Design, or Implementation when you want the code built.</p>
+    </div>
+    <div class="head-right">
+      <div class="seg" role="group" aria-label="Brief type">
+        <button type="button" data-set="design" aria-pressed="true">Design</button>
+        <button type="button" data-set="impl" aria-pressed="false">Implementation</button>
+      </div>
+      <span class="example" id="exampleNote">Prefilled with an example brief</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <form id="f" novalidate>
+      <fieldset>
+        <legend>ROLE · FIXED</legend>
+        <p class="role" id="roleText"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>CONTEXT</legend>
+        <div class="row">
+          <div class="field"><label for="projectType">Project type<code>PROJECT_TYPE</code></label><input id="projectType" placeholder="a landing page"></div>
+          <div class="field"><label for="whoFor">Who it's for<code>WHO_IT'S_FOR</code></label><input id="whoFor" placeholder="a solo barrister advertising his services"></div>
+        </div>
+        <div class="field"><label for="goal">Business goal<code>BUSINESS_GOAL</code></label><input id="goal" placeholder="get enquiries via the contact form"></div>
+        <div class="field"><label for="why">Why it matters<code>WHY</code></label><textarea id="why" placeholder="most clients find him through search and judge credibility within seconds"></textarea></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>PROJECT BRIEF</legend>
+        <div class="field"><label for="product">Product or service</label><textarea id="product" placeholder="What is being offered, in 2–3 sentences"></textarea></div>
+        <div class="field"><label for="audience">Target audience</label><textarea id="audience" placeholder="Who visits, what they care about, what worries them"></textarea></div>
+        <div class="row">
+          <div class="field"><label for="action">Primary action</label><input id="action" placeholder="Book a consultation"></div>
+          <div class="field"><label for="tone">Tone of voice</label><input id="tone" placeholder="authoritative but approachable"></div>
+        </div>
+        <div class="field"><label for="diffs">Key differentiators</label><textarea id="diffs" placeholder="One per line"></textarea><span class="hint">One per line</span></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>CONTENT</legend>
+        <div class="field"><label for="content">Existing content</label><textarea id="content" placeholder="Paste copy, bios, testimonials, pricing or FAQs. Leave empty for placeholder copy."></textarea></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>DESIGN DIRECTION</legend>
+        <div class="field"><label for="brand">Brand</label><input id="brand" placeholder="none yet — propose one"></div>
+        <div class="field"><label for="style">Style</label><input id="style" placeholder="editorial, lots of whitespace, serif headings"></div>
+        <div class="field"><label for="refs">References</label><textarea id="refs" placeholder="URLs or descriptions of sites you like and why"></textarea></div>
+        <div class="field"><label for="sections">Sections</label><input id="sections" placeholder="recommend the best structure"></div>
+        <div class="field" data-mode="design"><label for="palette">Colour palette</label><textarea id="palette" placeholder="Warm Ivory #F8F2E9: soft backgrounds&#10;Deep Espresso #211A14: text and buttons"></textarea><span class="hint">One per line, with the hex code and where it is used. Left empty, Claude proposes a palette.</span></div>
+        <div class="field" data-mode="design"><label for="layout">Layout requirements</label><textarea id="layout" placeholder="Mobile is the primary experience&#10;Keep text contrast legible"></textarea><span class="hint">One per line. Left empty, sensible responsive and readability defaults are used.</span></div>
+      </fieldset>
+
+      <fieldset data-mode="impl">
+        <legend>TECHNICAL</legend>
+        <div class="row">
+          <div class="field"><label for="stack">Stack</label><input id="stack" placeholder="Astro + TypeScript + Tailwind"></div>
+          <div class="field"><label for="hosting">Hosting</label><input id="hosting" placeholder="Vercel"></div>
+        </div>
+        <div class="field"><label for="integrations">Integrations</label><textarea id="integrations" placeholder="One per line: forms, analytics, booking widget, CMS"></textarea><span class="hint">One per line. Responsive, accessibility, performance and SEO are always included.</span></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>CONSTRAINTS</legend>
+        <div class="field"><label for="constraints">Constraints</label><textarea id="constraints" placeholder="One per line"></textarea><span class="hint">One per line. Left empty, the section is omitted.</span></div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit" class="primary" id="gen">Generate prompt</button>
+        <button type="button" id="clear">Clear form</button>
+      </div>
+    </form>
+
+    <section class="out" aria-live="polite">
+      <div class="out-head">
+        <h2>Your prompt</h2>
+        <div class="actions">
+          <span class="meta" id="count"></span>
+          <button type="button" id="copy">Copy</button>
+        </div>
+      </div>
+      <pre id="output"></pre>
+      <div class="status" id="status"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const ids = ["projectType","whoFor","goal","why","product","audience","action","tone","diffs","content","brand","style","refs","sections","stack","hosting","integrations","constraints","palette","layout"];
+const $ = id => document.getElementById(id);
+const KEY = "briefcraft-draft";
+
+const example = {
+  projectType: "a landing page",
+  whoFor: "a barrister in chambers advertising his services",
+  goal: "get enquiries through the contact form",
+  why: "Most clients find him through search and judge his credibility within seconds.",
+  product: "Advice and representation in commercial and contract disputes, with direct-access work for businesses.",
+  audience: "Small business owners and solicitors. They want proven expertise and clear fees, and worry about cost and delay.",
+  action: "Send an enquiry",
+  tone: "authoritative but approachable",
+  diffs: "Direct access available\nFixed-fee initial advice\nResponds within 24 hours",
+  content: "",
+  brand: "none yet — propose one",
+  style: "editorial, lots of whitespace, serif headings",
+  refs: "",
+  sections: "recommend the best structure",
+  stack: "Astro + TypeScript + Tailwind",
+  hosting: "Vercel",
+  integrations: "Contact form with spam protection\nPrivacy-friendly analytics",
+  constraints: "Must comply with Bar Standards Board rules on advertising\nNo stock photos of people"
+};
+
+const val = id => $(id).value.trim();
+const or = (id, fallback) => val(id) || fallback;
+const lines = id => val(id).split("\n").map(s => s.trim()).filter(Boolean);
+const indent = (text, n) => text.split("\n").map(l => " ".repeat(n) + l).join("\n");
+
+function buildImpl() {
+  const diffs = lines("diffs");
+  const integ = lines("integrations");
+  const cons = lines("constraints");
+  const whyText = val("why");
+
+  let p = `<role>
+You are a senior product designer and front-end engineer with 15 years of experience
+building high-converting marketing sites. You combine strong visual design instincts
+with clean, production-ready code. You think like a conversion copywriter: every
+section must earn its place by moving the visitor toward the primary action.
+</role>
+
+<context>
+I'm building ${or("projectType","a landing page")} for ${or("whoFor","[WHO IT'S FOR]")}.
+The goal of this project is to ${or("goal","[BUSINESS GOAL]").replace(/^to\s+/i,"")}.${whyText ? `\nThis matters because ${whyText.replace(/^because\s+/i,"")}` : ""}
+</context>
+
+<project_brief>
+  <product_or_service>${or("product","[What is being offered]")}</product_or_service>
+  <target_audience>${or("audience","[Who visits and what they care about]")}</target_audience>
+  <primary_action>${or("action","[The one thing a visitor should do]")}</primary_action>
+  <key_differentiators>
+${diffs.length ? diffs.map(d => "    - " + d).join("\n") : "    - [Add differentiators]"}
+  </key_differentiators>
+  <tone_of_voice>${or("tone","clear and confident")}</tone_of_voice>
+</project_brief>
+
+<content>
+${val("content") ? indent(val("content"), 2) : "  <!-- No existing content. Write placeholder copy that fits the brief and mark it clearly. -->"}
+</content>
+
+<design_direction>
+  <brand>${or("brand","none yet — propose one")}</brand>
+  <style>${or("style","propose a distinctive direction that suits the audience")}</style>
+  <references>${or("refs","none provided")}</references>
+  <sections>${or("sections","recommend the best structure")}</sections>
+</design_direction>
+
+<technical_requirements>
+  <stack>${or("stack","Astro + TypeScript + Tailwind")}</stack>
+  <hosting>${or("hosting","static hosting (e.g. Vercel)")}</hosting>
+  <must_have>
+    - Fully responsive, mobile-first
+    - Accessible (WCAG 2.1 AA: semantic HTML, contrast, keyboard navigation, alt text)
+    - Fast (aim for 90+ Lighthouse performance; optimised images, minimal JS)
+    - SEO basics: meta tags, Open Graph, structured data where relevant
+${integ.map(i => "    - " + i).join("\n")}
+  </must_have>
+</technical_requirements>
+`;
+  if (cons.length) {
+    p += `
+<constraints>
+${cons.map(c => "  - " + c).join("\n")}
+</constraints>
+`;
+  }
+  p += `
+<instructions>
+Work through this in stages:
+
+1. Read everything above. If anything essential is missing or contradictory, ask me
+   up to 5 focused questions before starting. Otherwise, state your assumptions and proceed.
+2. Inside <plan> tags, outline the page structure section by section, with the purpose
+   of each section and how it supports the primary action.
+3. Inside <copy> tags, write the full page copy. Lead with benefits, keep sentences short,
+   and use the tone of voice above.
+4. Inside <code> tags, build the page using the specified stack. Write clean, typed,
+   componentised code with brief comments where intent isn't obvious.
+5. Inside <review> tags, critique your own output against the brief: conversion,
+   accessibility, performance, and anything you'd improve with more time.
+
+Be ambitious with the design. Make deliberate, distinctive choices rather than
+generic template defaults.
+</instructions>
+
+<output_format>
+Use the XML tags specified in the instructions. Give file paths for every code file.
+Mark any placeholder content with [PLACEHOLDER].
+</output_format>`;
+  return p.replace(/\n{3,}/g, "\n\n");
+}
+
+function buildDesign() {
+  const diffs = lines("diffs");
+  const cons = lines("constraints");
+  const pal = lines("palette");
+  const lay = lines("layout");
+  const whyText = val("why");
+  const layout = lay.length ? lay : [
+    "Design for desktop and mobile, with mobile treated as the primary experience",
+    "Keep text contrast legible against its background",
+    "Make buttons and links clearly recognisable and easy to tap"
+  ];
+
+  let p = `<role>
+You are a senior product designer with 15 years of experience designing
+high-converting marketing sites for premium consumer brands. You combine strong
+visual instincts with the judgment of a conversion copywriter: every section must
+earn its place by moving the visitor toward the primary action.
+</role>
+
+<context>
+I'm designing ${or("projectType","a landing page")} for ${or("whoFor","[WHO IT'S FOR]")}.
+The goal of this project is to ${or("goal","[BUSINESS GOAL]").replace(/^to\s+/i,"")}.${whyText ? `\nThis matters because ${whyText.replace(/^because\s+/i,"")}` : ""}
+</context>
+
+<project_brief>
+  <product_or_service>${or("product","[What is being offered]")}</product_or_service>
+  <target_audience>${or("audience","[Who visits and what they care about]")}</target_audience>
+  <primary_action>${or("action","[The one thing a visitor should do]")}</primary_action>
+  <key_differentiators>
+${diffs.length ? diffs.map(d => "    - " + d).join("\n") : "    - [Add differentiators]"}
+  </key_differentiators>
+  <tone_of_voice>${or("tone","clear and confident")}</tone_of_voice>
+</project_brief>
+
+<content>
+${val("content") ? indent(val("content"), 2) : "  <!-- No existing content. Write placeholder copy that fits the brief and mark it clearly. -->"}
+</content>
+
+<design_direction>
+  <brand>${or("brand","none yet — propose one")}</brand>
+  <style>${or("style","propose a distinctive direction that suits the audience")}</style>
+${pal.length ? "  <colour_palette>\n" + pal.map(c => "    - " + c).join("\n") + "\n  </colour_palette>\n" : ""}  <references>${or("refs","none provided")}</references>
+  <sections>${or("sections","recommend the best structure")}</sections>
+  <layout_requirements>
+${layout.map(l => "    - " + l).join("\n")}
+  </layout_requirements>
+</design_direction>
+`;
+  if (cons.length) {
+    p += `
+<constraints>
+${cons.map(c => "  - " + c).join("\n")}
+</constraints>
+`;
+  }
+  p += `
+<instructions>
+Work through this in stages:
+
+1. Read everything above. If anything essential is missing or contradictory, ask me
+   up to 5 focused questions before starting. Otherwise, state your assumptions and proceed.
+2. Inside <plan> tags, outline the page structure section by section, with the purpose
+   of each section and how it supports the primary action.
+3. Inside <copy> tags, write the full page copy. Lead with benefits, keep sentences short,
+   and use the tone of voice above.
+4. Design the full page using the plan, copy, palette and style above. Show the
+   desktop and mobile versions.
+5. Inside <review> tags, critique your own design against the brief: conversion,
+   clarity, accessibility, and anything you'd improve with more time.
+
+Be ambitious with the design. Make deliberate, distinctive choices rather than
+generic template defaults.
+</instructions>
+
+<output_format>
+Use the XML tags specified in the instructions for the plan, copy and review.
+Mark any placeholder content with [PLACEHOLDER].
+</output_format>`;
+  return p.replace(/\n{3,}/g, "\n\n");
+}
+
+let current = "";
+let mode = "design";
+const MODE_KEY = "briefcraft-mode";
+const build = () => mode === "design" ? buildDesign() : buildImpl();
+const ROLES = {
+  design: "Senior product designer, 15 years designing high-converting marketing sites. Thinks like a conversion copywriter.",
+  impl: "Senior product designer and front-end engineer, 15 years building high-converting marketing sites. Thinks like a conversion copywriter."
+};
+function render() {
+  current = build();
+  const out = $("output");
+  out.textContent = "";
+  // highlight tag tokens safely via text nodes
+  current.split(/(<\/?[a-z_]+>)/g).forEach(part => {
+    if (/^<\/?[a-z_]+>$/.test(part)) {
+      const s = document.createElement("span"); s.className = "t"; s.textContent = part; out.appendChild(s);
+    } else out.appendChild(document.createTextNode(part));
+  });
+  const words = current.split(/\s+/).filter(Boolean).length;
+  $("count").textContent = `${words.toLocaleString()} words`;
+}
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(ids.map(i => [i, $(i).value])))); } catch (e) {}
+}
+function load() {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
+  const src = data || example;
+  ids.forEach(i => { $(i).value = src[i] || ""; });
+  $("exampleNote").hidden = !!data;
+}
+
+$("f").addEventListener("submit", e => {
+  e.preventDefault(); render(); save();
+  $("status").textContent = "Prompt generated.";
+  if (window.matchMedia("(max-width: 900px)").matches) $("output").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("f").addEventListener("input", () => { save(); $("exampleNote").hidden = true; });
+$("clear").addEventListener("click", () => {
+  ids.forEach(i => { $(i).value = ""; }); save(); render();
+  $("status").textContent = "Form cleared.";
+});
+$("copy").addEventListener("click", () => {
+  const done = () => { $("status").textContent = "Copied to clipboard."; };
+  const fallback = () => {
+    const r = document.createRange(); r.selectNodeContents($("output"));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    $("status").textContent = "Prompt selected. Press Ctrl+C (or ⌘C) to copy.";
+  };
+  try { navigator.clipboard.writeText(current).then(done, fallback); } catch (e) { fallback(); }
+});
+
+function setMode(m, persist) {
+  mode = m;
+  document.querySelectorAll("[data-mode]").forEach(el => { el.hidden = el.dataset.mode !== m; });
+  document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.set === m)));
+  $("roleText").textContent = ROLES[m];
+  if (persist) { try { localStorage.setItem(MODE_KEY, m); } catch (e) {} }
+  render();
+}
+document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+  setMode(b.dataset.set, true);
+  $("status").textContent = b.dataset.set === "design" ? "Design mode: no code or hosting sections." : "Implementation mode: includes the technical sections and a code stage.";
+}));
+
+load();
+let startMode = "design";
+try { startMode = localStorage.getItem(MODE_KEY) === "impl" ? "impl" : "design"; } catch (e) {}
+setMode(startMode, false);
+</script>
+</html>
