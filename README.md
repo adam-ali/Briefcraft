@@ -1,6 +1,10 @@
-# Briefcraft
+# Briefcraft: a free Claude prompt generator for website and landing page briefs
 
-Briefcraft turns a simple form into a well-structured prompt you can paste into Claude.
+**[Open Briefcraft](https://adam-ali.github.io/Briefcraft/)** (free, runs in your browser, no sign-up)
+
+[![Briefcraft: a project brief form on the left and the generated XML-tagged prompt on the right](assets/screenshot.png)](https://adam-ali.github.io/Briefcraft/)
+
+Briefcraft turns a simple form into a well-structured prompt you can paste into Claude. It's a prompt builder for anyone who wants better results from Claude when designing or building a website or landing page.
 
 Writing a good prompt for a website or landing page means remembering a lot: who it's for, what the goal is, what tone to use, what the constraints are. Briefcraft asks for those things one by one, then builds a clear, organised prompt for you.
 
@@ -22,7 +26,7 @@ Use the toggle at the top right to switch.
 
 Briefcraft is a single file with no build step and nothing to install.
 
-- **Online:** if GitHub Pages is enabled for this repo, open the published page.
+- **Online:** open [adam-ali.github.io/Briefcraft](https://adam-ali.github.io/Briefcraft/).
 - **Locally:** download `index.html` and open it in any modern browser.
 
 The form starts with an example brief so you can see how it works. Press **Clear form** to start fresh.
@@ -34,9 +38,15 @@ Everything runs in your browser. Nothing you type is sent anywhere. Your draft a
 ## Project files
 
 - `index.html`: the whole app (HTML, CSS and JavaScript in one file)
+- `assets/screenshot.png`: the screenshot above, also used for link previews
+- `robots.txt` and `sitemap.xml`: help search engines find the page
 - `LICENSE`: MIT license
 - `README.md`: this file
 
 ## License
 
 Released under the [MIT License](LICENSE). You're free to use, copy, change and share it.
+
+## Keywords
+
+Claude prompt generator, AI prompt builder, prompt engineering tool, XML prompt template, landing page prompt, website design brief, Claude Design, structured prompts.
